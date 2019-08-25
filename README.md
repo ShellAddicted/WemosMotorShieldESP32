@@ -13,7 +13,7 @@ mkdir components/
 cd components/
 git clone https://github.com/ShellAddicted/WemosMotorShieldESP32
 ```
-Remember to enable ```Compiler Options -> Enable C++ Exceptions``` using ```make menuconfig```
+Remember to enable ```Compiler Options -> Enable C++ Exceptions``` using ```idf.py menuconfig```
 
 for more details see [examples/](https://github.com/ShellAddicted/WemosMotorShieldESP32/tree/master/examples)
 
