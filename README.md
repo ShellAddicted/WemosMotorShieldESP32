@@ -1,4 +1,4 @@
-# WemosMotorShieldESP32
+# WemosMotorShieldESP32 [![Build Status](https://travis-ci.org/ShellAddicted/WemosMotorShieldESP32.svg?branch=master)](https://travis-ci.org/ShellAddicted/WemosMotorShieldESP32)
 
 This idf-component provides a C++ Interface for [Wemos's Motor Shield V1](https://wiki.wemos.cc/products:retired:motor_shield_v1.0.0) compatible with [Espressif's ESP32 SoC](https://www.espressif.com/en/products/hardware/esp32/overview) (running [esp-idf](https://github.com/espressif/esp-idf)).
 
