@@ -24,22 +24,15 @@
 #ifndef WEMOS_MOTOR_SHEILD_ESP32_H
 #define WEMOS_MOTOR_SHEILD_ESP32_H
 
-#define WEMOS_MOTOR_SHEILD_ESP32_DEBUG_OFF  // uncomment to DISABLE DEBUG LOGS
-
 #include <exception>
 #include <string>
+
 #include "driver/i2c.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 #define ACK_EN 0x01
 #define I2C_ROUND_NUM 32
-
-#ifndef WEMOS_MOTOR_SHEILD_ESP32_DEBUG_OFF
-#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
-#endif
-#include "esp_log.h"
-
 class WemosMotorShieldBaseException : public std::exception {
    protected:
     std::string _msg;

@@ -30,36 +30,25 @@ WemosMotorShield::WemosMotorShield(i2c_port_t i2cPort, uint8_t i2cAddr, float pw
     _i2cAddr = i2cAddr;
     _standby_io_pin = standby_io_pin;
     _setfreq(pwmFreq);
-    if (standby_io_pin < GPIO_NUM_MAX) {
-        _setStandbyPin(0);
-    }
+    setMotor(MotorNum::MOTOR_A, MotorDirection::STANDBY, 0);
+    setMotor(MotorNum::MOTOR_B, MotorDirection::STANDBY, 0);
 }
 
 void WemosMotorShield::_i2c_writeLen(uint8_t reg, uint8_t *buffer, uint8_t len, uint32_t timeoutMS) {
-    esp_err_t errx;
+    esp_err_t err;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (_i2cAddr << 1) | I2C_MASTER_WRITE, ACK_EN);
-    i2c_master_write_byte(cmd, reg, ACK_EN);
-    i2c_master_write(cmd, buffer, len, 0x01);
+    if (reg != 0x00) i2c_master_write_byte(cmd, reg, ACK_EN);  // Wemos Motor Shield Doesn't like 0x00 as register
+    i2c_master_write(cmd, buffer, len, ACK_EN);
     i2c_master_stop(cmd);
 
     for (int round = 1; round <= I2C_ROUND_NUM; round++) {
-#ifndef WEMOS_MOTOR_SHEILD_ESP32_DEBUG_OFF
-        ESP_LOGD(WEMOS_MOTOR_SHIELD_LOG_TAG, "(i2c_WL) Round %d", round);
-#endif
-        errx = i2c_master_cmd_begin(_i2cPort, cmd, timeoutMS / portTICK_PERIOD_MS);
-        if (errx == ESP_OK) {
-            break;
-        } else if ((errx != ESP_OK) && (round < I2C_ROUND_NUM)) {
-            continue;
-        } else {
-            i2c_cmd_link_delete(cmd);
-            ESP_LOGE(WEMOS_MOTOR_SHIELD_LOG_TAG, "(i2c WL) Error: %d", (int)errx);
-            throw WemosMotorShieldI2CError();
-        }
+        err = i2c_master_cmd_begin(_i2cPort, cmd, pdMS_TO_TICKS(timeoutMS));
+        if (err == ESP_OK) break;
     }
     i2c_cmd_link_delete(cmd);
+    if (err != ESP_OK) throw WemosMotorShieldI2CError();
 }
 
 void WemosMotorShield::_setStandbyPin(uint8_t state) {
@@ -75,31 +64,26 @@ void WemosMotorShield::_setfreq(uint32_t freq) {
     data[2] = freq >> 8;
     data[3] = freq;
     _i2c_writeLen(0x00, data, 4, 100);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    vTaskDelay(pdMS_TO_TICKS(100));
 }
 void WemosMotorShield::setMotor(motor_num_t motor, motor_direction_t direction, float speed) {
-    if (_standby_io_pin != GPIO_NUM_MAX) {
-        if (direction == MotorDirection::STANDBY) {
-            _setStandbyPin(1);
-        } else {
-            _setStandbyPin(0);
-        }
-    }
-
-    if (speed < 0.0) {
-        speed = 0.0;
-    } else if (speed > 100.0) {
-        speed = 100.0;
-    }
-
-    uint16_t _pwm_val = speed * 100;
-
     const uint8_t reg = motor | 0x10;
     uint8_t data[3];
-    data[0] = direction;
-    data[1] = _pwm_val >> 8;
-    data[2] = _pwm_val & 0xFF;
-    _i2c_writeLen(reg, data, 3);
-
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    if (_standby_io_pin > 0 && _standby_io_pin < GPIO_NUM_MAX) {
+        if (direction == MotorDirection::STANDBY)
+            _setStandbyPin(1);
+        else
+            _setStandbyPin(0);
+    } else {
+        if (speed < 0.0)
+            speed = 0.0;
+        else if (speed > 100.0)
+            speed = 100.0;
+        uint16_t _pwm_val = speed * 100;
+        data[0] = direction;
+        data[1] = _pwm_val >> 8;
+        data[2] = _pwm_val & 0xFF;
+        _i2c_writeLen(reg, data, 3);
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
 }
