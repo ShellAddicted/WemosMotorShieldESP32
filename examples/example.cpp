@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include "WemosMotorShieldESP32.h"
+#include "esp_log.h"
 
 static const char *WMS_LOG = "WemosMS";
 extern "C" void app_main(void) {
@@ -36,25 +37,27 @@ extern "C" void app_main(void) {
     i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);
     i2c_set_timeout(I2C_NUM_0, 30000);
 
-    // Setup Motor Shield (Use of I²C Motor Standby is strongly recommended)
-    ESP_LOGE(WMS_LOG, "Shield init");
-    WemosMotorShield wemosMS(I2C_NUM_0);
-    // WemosMotorShield wemosMS2(I2C_NUM_0, 0x2D); // Support for multiple shield
+    WemosMotorShield wemosMS(I2C_NUM_0);  // Setup Motor Shield (Use of I²C Motor Standby is strongly recommended)s
+    // WemosMotorShield wemosMS2(I2C_NUM_0, 0x2D); // Support for multiple shields
 
     // Do something with the motors
     while (1) {
-        ESP_LOGI(WMS_LOG, "MotorA: Forward");
-        wemosMS.setMotor(MotorNum::MOTOR_A, MotorDirection::FORWARD, 100.0);
-        ESP_LOGI(WMS_LOG, "MotorB: Backward");
-        wemosMS.setMotor(MotorNum::MOTOR_B, MotorDirection::BACKWARD, 100.0);
-        ESP_LOGI(WMS_LOG, "Waiting for 5s");
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        ESP_LOGI(WMS_LOG, "MotorA: Forward ; MotorB: Backward");
+        for (float speed = 0, speed < 100 : speed++) {
+            wemosMS.setMotor(MotorNum::MOTOR_A, MotorDirection::FORWARD, speed);
+            wemosMS.setMotor(MotorNum::MOTOR_B, MotorDirection::BACKWARD, speed);
+        }
 
-        ESP_LOGI(WMS_LOG, "MotorA: Backward");
-        wemosMS.setMotor(MotorNum::MOTOR_A, MotorDirection::BACKWARD, 100.0);
-        ESP_LOGI(WMS_LOG, "MotorB: Forward");
-        wemosMS.setMotor(MotorNum::MOTOR_B, MotorDirection::FORWARD, 100.0);
-        ESP_LOGI(WMS_LOG, "Waiting for 5s");
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        ESP_LOGI(WMS_LOG, "Waiting for 2s");
+        vTaskDelay(pdMS_TO_TICKS(2000));
+        
+        ESP_LOGI(WMS_LOG, "MotorA: Backward ; MotorB: Forward");
+        for (float speed = 0, speed < 100 : speed++) {
+            wemosMS.setMotor(MotorNum::MOTOR_A, MotorDirection::BACKWARD, speed);
+            wemosMS.setMotor(MotorNum::MOTOR_B, MotorDirection::FORWARD, speed);
+        }
+
+        ESP_LOGI(WMS_LOG, "Waiting for 2s");
+        vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }
