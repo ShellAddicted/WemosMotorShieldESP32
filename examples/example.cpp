@@ -43,7 +43,7 @@ extern "C" void app_main(void) {
     // Do something with the motors
     while (1) {
         ESP_LOGI(WMS_LOG, "MotorA: Forward ; MotorB: Backward");
-        for (float speed = 0, speed < 100 : speed++) {
+        for (float speed = 0; speed < 100; speed++) {
             wemosMS.setMotor(MotorNum::MOTOR_A, MotorDirection::FORWARD, speed);
             wemosMS.setMotor(MotorNum::MOTOR_B, MotorDirection::BACKWARD, speed);
         }
@@ -52,7 +52,7 @@ extern "C" void app_main(void) {
         vTaskDelay(pdMS_TO_TICKS(2000));
         
         ESP_LOGI(WMS_LOG, "MotorA: Backward ; MotorB: Forward");
-        for (float speed = 0, speed < 100 : speed++) {
+        for (float speed = 0; speed < 100; speed++) {
             wemosMS.setMotor(MotorNum::MOTOR_A, MotorDirection::BACKWARD, speed);
             wemosMS.setMotor(MotorNum::MOTOR_B, MotorDirection::FORWARD, speed);
         }

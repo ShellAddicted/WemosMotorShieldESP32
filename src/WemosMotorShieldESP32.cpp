@@ -23,8 +23,6 @@
 /*!please use the following clang-settings {BasedOnStyle: Google, ColumnLimit: 130, IndentWidth: 4}!*/
 #include "WemosMotorShieldESP32.h"
 
-static const char *WEMOS_MOTOR_SHIELD_LOG_TAG = "WemosMS";
-
 WemosMotorShield::WemosMotorShield(i2c_port_t i2cPort, uint8_t i2cAddr, float pwmFreq, gpio_num_t standby_io_pin) {
     _i2cPort = i2cPort;
     _i2cAddr = i2cAddr;
